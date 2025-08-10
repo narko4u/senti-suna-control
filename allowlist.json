@@ -17,10 +17,10 @@
     "cmd": "Test-Connection -ComputerName {{host}} -Quiet | ConvertTo-Json"
   },
   "Restart-Service": {
-    "type": "powershell",
-    "params": ["service"],
-    "cmd": "Restart-Service -Name {{service}} -Force; '{\"ok\":true}'"
-  },
+  "type": "powershell",
+  "params": ["service"],
+  "cmd": "$ErrorActionPreference='Stop'; $n='{{service}}'; $svc=Get-Service -Name $n -ErrorAction Stop; if($svc.Status -eq 'Running'){ Restart-Service -Name $n -Force } else { Start-Service -Name $n }; $final=(Get-Service -Name $n).Status; @{ ok=$true; status=$final } | ConvertTo-Json"
+},
   "Tail-EventLog": {
     "type": "powershell",
     "params": ["log","count"],
