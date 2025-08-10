@@ -32,8 +32,8 @@
 
   "Service-EnsureRunning": {
   "type": "powershell",
-  "params": ["service","startType"],
-  "cmd": "$ErrorActionPreference='Stop'; $n='{{service}}'; $st='{{startType}}'; $ok=$true; $err=$null; try{ if($st -in @('Automatic','Manual','Disabled')){ Set-Service -Name $n -StartupType $st } $svc=Get-Service -Name $n; if($svc.Status -ne 'Running'){ Start-Service -Name $n } } catch { $ok=$false; $err=$_.Exception.Message } finally { $svc=Get-Service -Name $n -ErrorAction SilentlyContinue; $mode=(Get-CimInstance Win32_Service -Filter \"Name='$n'\" -ErrorAction SilentlyContinue).StartMode; @{ ok=$ok; error=$err; name=$n; status=($svc.Status.ToString()); startMode=$mode } | ConvertTo-Json }"
+  "params": ["service", "startType"],
+  "cmd": "$ErrorActionPreference='Stop'; $n='{{service}}'; $st='{{startType}}'; if($st -in @('Automatic','Manual','Disabled')){ try{ Set-Service -Name $n -StartupType $st -ErrorAction Stop }catch{ Write-Error $_ } }; $svc=Get-Service -Name $n -ErrorAction Stop; if($svc.Status -ne 'Running'){ try{ Start-Service -Name $n -ErrorAction Stop }catch{ Write-Error $_ } }; $final=Get-Service -Name $n; @{ name=$final.Name; status=$final.Status.ToString(); startType=$final.StartType } | ConvertTo-Json"
 },
 
   "Service-Deps": {
