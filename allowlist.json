@@ -36,4 +36,14 @@
     "params": ["path","args"],
     "cmd": "powershell -NoProfile -ExecutionPolicy Bypass -File {{path}} {{args}} 2>&1 | Out-String"
   }
+  "Service-Status": {
+  "type": "powershell",
+  "params": ["service"],
+  "cmd": "Get-Service -Name {{service}} -ErrorAction SilentlyContinue | Select-Object Name,Status,StartType,ServiceType,CanPauseAndContinue,CanStop | ConvertTo-Json -Depth 2"
+},
+"Service-EnsureRunning": {
+  "type": "powershell",
+  "params": ["service","startType"],
+  "cmd": "$ErrorActionPreference='Stop'; $n='{{service}}'; $st='{{startType}}'; if($st -in @('Automatic','Manual','Disabled')){ try{ Set-Service -Name $n -StartupType $st }catch{} }; $svc=Get-Service -Name $n -ErrorAction Stop; if($svc.Status -ne 'Running'){ try{ Start-Service -Name $n -ErrorAction Stop }catch{} }; $final=Get-Service -Name $n; @{ name=$final.Name; status=$final.Status; startType=$final.StartType } | ConvertTo-Json"
+}
 }
