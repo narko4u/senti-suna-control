@@ -10,5 +10,30 @@
   "Get-Process": {
     "type": "powershell",
     "cmd": "Get-Process | Select-Object -First 30 | ConvertTo-Json -Depth 2"
+  },
+  "Ping": {
+    "type": "powershell",
+    "params": ["host"],
+    "cmd": "Test-Connection -ComputerName {{host}} -Quiet | ConvertTo-Json"
+  },
+  "Restart-Service": {
+    "type": "powershell",
+    "params": ["service"],
+    "cmd": "Restart-Service -Name {{service}} -Force; '{\"ok\":true}'"
+  },
+  "Tail-EventLog": {
+    "type": "powershell",
+    "params": ["log","count"],
+    "cmd": "Get-WinEvent -LogName {{log}} -MaxEvents {{count}} | Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message | ConvertTo-Json -Depth 3"
+  },
+  "GitPull": {
+    "type": "powershell",
+    "params": ["path"],
+    "cmd": "Set-Location -Path {{path}}; git pull 2>&1 | Out-String"
+  },
+  "RunScript": {
+    "type": "powershell",
+    "params": ["path","args"],
+    "cmd": "powershell -NoProfile -ExecutionPolicy Bypass -File {{path}} {{args}} 2>&1 | Out-String"
   }
 }
