@@ -1,49 +1,27 @@
 {
-  "Get-ComputerInfo": {
-    "type": "powershell",
-    "cmd": "Get-ComputerInfo | ConvertTo-Json -Depth 2"
-  },
-  "DiskFree": {
-    "type": "powershell",
-    "cmd": "Get-PSDrive -PSProvider FileSystem | Select Name,Free,Used,Root | ConvertTo-Json -Depth 2"
-  },
-  "Get-Process": {
-    "type": "powershell",
-    "cmd": "Get-Process | Select-Object -First 30 | ConvertTo-Json -Depth 2"
-  },
-  "Ping": {
-    "type": "powershell",
-    "params": ["host"],
-    "cmd": "Test-Connection -ComputerName {{host}} -Quiet | ConvertTo-Json"
-  },
+  "Get-ComputerInfo": { "type":"powershell","cmd":"Get-ComputerInfo | ConvertTo-Json -Depth 2" },
+  "DiskFree":        { "type":"powershell","cmd":"Get-PSDrive -PSProvider FileSystem | Select Name,Free,Used,Root | ConvertTo-Json -Depth 2" },
+  "Get-Process":     { "type":"powershell","cmd":"Get-Process | Select-Object -First 30 | ConvertTo-Json -Depth 2" },
+
+  "Ping":            { "type":"powershell","params":["host"], "cmd":"Test-Connection -ComputerName {{host}} -Quiet | ConvertTo-Json" },
+
   "Restart-Service": {
-  "type": "powershell",
-  "params": ["service"],
-  "cmd": "$ErrorActionPreference='Stop'; $n='{{service}}'; $svc=Get-Service -Name $n -ErrorAction Stop; if($svc.Status -eq 'Running'){ Restart-Service -Name $n -Force } else { Start-Service -Name $n }; $final=(Get-Service -Name $n).Status; @{ ok=$true; status=$final } | ConvertTo-Json"
-},
-  "Tail-EventLog": {
-    "type": "powershell",
-    "params": ["log","count"],
-    "cmd": "Get-WinEvent -LogName {{log}} -MaxEvents {{count}} | Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message | ConvertTo-Json -Depth 3"
+    "type":"powershell","params":["service"],
+    "cmd":"$ErrorActionPreference='Stop'; $n='{{service}}'; $svc=Get-Service -Name $n -ErrorAction Stop; if($svc.Status -eq 'Running'){ Restart-Service -Name $n -Force } else { Start-Service -Name $n }; $final=(Get-Service -Name $n).Status.ToString(); @{ ok=$true; status=$final } | ConvertTo-Json"
   },
-  "GitPull": {
-    "type": "powershell",
-    "params": ["path"],
-    "cmd": "Set-Location -Path {{path}}; git pull 2>&1 | Out-String"
-  },
-  "RunScript": {
-    "type": "powershell",
-    "params": ["path","args"],
-    "cmd": "powershell -NoProfile -ExecutionPolicy Bypass -File {{path}} {{args}} 2>&1 | Out-String"
-  }
+
   "Service-Status": {
-  "type": "powershell",
-  "params": ["service"],
-  "cmd": "Get-Service -Name {{service}} -ErrorAction SilentlyContinue | Select-Object Name,Status,StartType,ServiceType,CanPauseAndContinue,CanStop | ConvertTo-Json -Depth 2"
-},
-"Service-EnsureRunning": {
-  "type": "powershell",
-  "params": ["service","startType"],
-  "cmd": "$ErrorActionPreference='Stop'; $n='{{service}}'; $st='{{startType}}'; if($st -in @('Automatic','Manual','Disabled')){ try{ Set-Service -Name $n -StartupType $st }catch{} }; $svc=Get-Service -Name $n -ErrorAction Stop; if($svc.Status -ne 'Running'){ try{ Start-Service -Name $n -ErrorAction Stop }catch{} }; $final=Get-Service -Name $n; @{ name=$final.Name; status=$final.Status; startType=$final.StartType } | ConvertTo-Json"
-}
+    "type":"powershell","params":["service"],
+    "cmd":"Get-Service -Name {{service}} -ErrorAction SilentlyContinue | Select-Object Name,Status,StartType,ServiceType,CanPauseAndContinue,CanStop | ConvertTo-Json -Depth 2"
+  },
+  "Service-EnsureRunning": {
+    "type":"powershell","params":["service","startType"],
+    "cmd":"$ErrorActionPreference='Stop'; $n='{{service}}'; $st='{{startType}}'; if($st -in @('Automatic','Manual','Disabled')){ try{ Set-Service -Name $n -StartupType $st }catch{} }; $svc=Get-Service -Name $n -ErrorAction Stop; if($svc.Status -ne 'Running'){ try{ Start-Service -Name $n -ErrorAction Stop }catch{} }; $final=Get-Service -Name $n; @{ name=$final.Name; status=$final.Status.ToString(); startType=$final.StartType } | ConvertTo-Json"
+  },
+
+  "Tail-EventLog":   { "type":"powershell","params":["log","count"], "cmd":"Get-WinEvent -LogName {{log}} -MaxEvents {{count}} | Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message | ConvertTo-Json -Depth 3" },
+
+  "GitPull":         { "type":"powershell","params":["path"], "cmd":"Set-Location -Path {{path}}; git pull 2>&1 | Out-String" },
+
+  "RunScript":       { "type":"powershell","params":["path","args"], "cmd":"powershell -NoProfile -ExecutionPolicy Bypass -File {{path}} {{args}} 2>&1 | Out-String" }
 }
